@@ -162,7 +162,9 @@ def validate_seismic(model, args, iters=24):
 
             epe = epe.view(-1)
             mag = mag.view(-1)
-            val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
+            # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
+            val = valid_gt.view(-1)
+            mag_val = (mag < args.max_flow)
 
             out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
             Kepe_list.append(epe[val].mean().item())
@@ -170,7 +172,8 @@ def validate_seismic(model, args, iters=24):
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
-            flow_loss += (val * i_loss.view(-1)).mean()
+            # flow_loss += (val * i_loss.view(-1)).mean()
+            flow_loss += (val * i_loss.view(-1) * mag_val).mean()
 
             if val_id in vis_sample_element:
                 pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))
@@ -240,7 +243,9 @@ def validate_seismic(model, args, iters=24):
 
             epe = epe.view(-1)
             mag = mag.view(-1)
-            val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
+            # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
+            val = valid_gt.view(-1)
+            mag_val = (mag < args.max_flow)
 
             out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
             Kepe_list.append(epe[val].mean().item())
@@ -248,7 +253,8 @@ def validate_seismic(model, args, iters=24):
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
-            flow_loss += (val * i_loss.view(-1)).mean()
+            # flow_loss += (val * i_loss.view(-1)).mean()
+            flow_loss += (val * i_loss.view(-1) * mag_val).mean()
 
             if val_id in vis_sample_element:
                 pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))

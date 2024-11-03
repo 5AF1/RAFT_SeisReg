@@ -54,12 +54,14 @@ def sequence_loss(flow_preds, flow_gt, valid, gamma=0.8, max_flow=400):
 
     # exlude invalid pixels and extremely large diplacements
     mag = torch.sum(flow_gt**2, dim=1).sqrt()
-    valid = (valid >= 0.5) & (mag < max_flow)
+    # valid = (valid >= 0.5) & (mag < max_flow)
+    mag_valid = (mag < max_flow)
 
     for i in range(n_predictions):
         i_weight = gamma**(n_predictions - i - 1)
         i_loss = (flow_preds[i] - flow_gt).abs()
-        flow_loss += i_weight * (valid[:, None] * i_loss).mean()
+        # flow_loss += i_weight * (valid[:, None] * i_loss).mean()
+        flow_loss += i_weight * (valid[:, None] * i_loss * mag_valid[:, None]).mean()
 
     epe = torch.sum((flow_preds[-1] - flow_gt)**2, dim=1).sqrt()
     epe = epe.view(-1)[valid.view(-1)]
@@ -176,6 +178,33 @@ def wandb_train(args):
         while should_keep_training:
             for i_batch, data_blob in enumerate(tqdm(train_loader, desc = f'Epoch {epoch} Step {total_steps+1} of {args.num_steps}', total = train_loader_len)):
                 optimizer.zero_grad()
+                if total_steps % args.validation_every == args.validation_every - 1 or total_steps == 0:
+                    PATH = Path(args.checkpoint)
+                    PATH.mkdir(exist_ok=True)
+                    PATH = PATH/f'{args.name}_{total_steps}.pth'
+                    checkpoint = { 
+                        'epoch': epoch,
+                        'steps': total_steps,
+                        'model': model.state_dict(),
+                        'optimizer': optimizer.state_dict(),
+                        'scaler':scaler.state_dict(),
+                        'scheduler': scheduler}
+                    if total_steps != 0:
+                        torch.save(checkpoint, PATH)
+
+                    results = {}
+                    
+                    results.update(evaluate.validate_seismic(model.module,  args))
+
+                    wandb.log(results, step=total_steps)
+
+                    if early_stopper(results['val_loss']):
+                        print('Early Stopping.')
+                        should_keep_training = False
+                        break
+                    
+                model.train()
+                optimizer.zero_grad()
                 image1, image2, flow, valid = [x.cuda() for x in data_blob]
 
                 if args.add_noise and args.equalize:
@@ -196,32 +225,6 @@ def wandb_train(args):
 
                 wandb.log(metrics, step=total_steps)
                 wandb.log({'last_lr': (scheduler.get_last_lr()[0])}, step = total_steps)
-
-                if total_steps % args.validation_every == args.validation_every - 1:
-                    PATH = Path(args.checkpoint)
-                    PATH.mkdir(exist_ok=True)
-                    PATH = PATH/f'{args.name}_{total_steps+1}.pth'
-                    checkpoint = { 
-                        'epoch': epoch,
-                        'steps': total_steps,
-                        'model': model.state_dict(),
-                        'optimizer': optimizer.state_dict(),
-                        'scaler':scaler.state_dict(),
-                        'scheduler': scheduler}
-                    torch.save(checkpoint, PATH)
-
-                    results = {}
-                    
-                    results.update(evaluate.validate_seismic(model.module,  args))
-
-                    wandb.log(results, step=total_steps)
-
-                    if early_stopper(results['val_loss']):
-                        print('Early Stopping.')
-                        should_keep_training = False
-                        break
-                    
-                    model.train()
             
                 total_steps += 1
 
