@@ -164,11 +164,11 @@ def validate_seismic(model, args, iters=24):
             mag = mag.view(-1)
             # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
             val = valid_gt.view(-1)
-            mag_val = (mag < args.max_flow)
+            mag_val = (mag < args.max_flow) & (valid_gt.view(-1) != 0.0)
 
             out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
-            Kepe_list.append(epe[val].mean().item())
-            Kout_list.append(out[val].cpu().numpy())
+            Kepe_list.append(epe[mag_val].mean().item())
+            Kout_list.append(out[mag_val].cpu().numpy())
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
@@ -245,11 +245,11 @@ def validate_seismic(model, args, iters=24):
             mag = mag.view(-1)
             # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
             val = valid_gt.view(-1)
-            mag_val = (mag < args.max_flow)
+            mag_val = (mag < args.max_flow) & (valid_gt.view(-1) != 0.0)
 
             out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
-            Kepe_list.append(epe[val].mean().item())
-            Kout_list.append(out[val].cpu().numpy())
+            Kepe_list.append(epe[mag_val].mean().item())
+            Kout_list.append(out[mag_val].cpu().numpy())
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
