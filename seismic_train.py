@@ -64,7 +64,7 @@ def sequence_loss(flow_preds, flow_gt, valid, gamma=0.8, max_flow=400):
         flow_loss += i_weight * (valid[:, None] * i_loss * mag_valid[:, None]).mean()
 
     epe = torch.sum((flow_preds[-1] - flow_gt)**2, dim=1).sqrt()
-    epe = epe.view(-1)[valid.view(-1)]
+    epe = epe.view(-1)[mag_valid.view(-1)]
 
     metrics = {
         'tra_epe': epe.mean().item(),
