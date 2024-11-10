@@ -114,6 +114,8 @@ class SeismicDataset(data.Dataset):
 
         flow = frame_utils.readSeismicCSV(self.flow_list[index], is_flow = True)
         valid = frame_utils.readSeismicCSV(self.valid_list[index])
+        if np.any((valid < 0.0) | (valid > 200.0)):
+            valid[:] = 0.0
 
         pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize)
         ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize)
