@@ -178,7 +178,7 @@ def wandb_train(args):
         while should_keep_training:
             for i_batch, data_blob in enumerate(tqdm(train_loader, desc = f'Epoch {epoch} Step {total_steps+1} of {args.num_steps}', total = train_loader_len)):
                 optimizer.zero_grad()
-                if total_steps % args.validation_every == args.validation_every - 1 or total_steps == 0:
+                if total_steps % args.validation_every == args.validation_every - 1 or (total_steps == 0 and not args.skp_frst_val):
                     PATH = Path(args.checkpoint)
                     PATH.mkdir(exist_ok=True)
                     PATH = PATH/f'{args.name}_{total_steps}.pth'
@@ -312,6 +312,7 @@ def get_args(args = None):
 
         parser.add_argument('--small', action='store_true', help='use small model')
         parser.add_argument('--equalize', action='store_true', help='equalize histogram')
+        parser.add_argument('--skp_frst_val', action='store_true')
         # parser.add_argument('--validation', type=str, nargs='+')
 
         parser.add_argument('--lr', type=float, default=0.00002)
