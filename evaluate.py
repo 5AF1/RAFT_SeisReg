@@ -85,7 +85,10 @@ def create_seismic_submission(model, args, output_path = None, split = 'Validati
     flow_file_dir.mkdir(parents=True, exist_ok=True)
 
     model.eval()
-    dataset = datasets.SeismicDataset(root = args.root, split=split, equalize=args.equalize, original_pp = args.original_pp, original_ps = args.original_ps)
+    dataset = datasets.SeismicDataset(root = args.root, split=split, equalize=args.equalize, 
+                                        original_pp = args.original_pp, 
+                                        original_ps = args.original_ps, 
+                                        original_ss = args.original_ss)
     for ds_id in tqdm(list(range(len(dataset))), desc = f'Saving {split}'):
         image1, image2, flow_gt, valid_gt = dataset[ds_id]
         image1 = image1[None].cuda()
@@ -132,7 +135,7 @@ def validate_seismic(model, args, iters=24):
     model.eval()
     ret = {'val_loss':0}
 
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = True, original_ps = False)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = True)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -213,7 +216,7 @@ def validate_seismic(model, args, iters=24):
             'val_og_pp/flow_pr_list':flow_pr_list, 
         })
     
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = False, original_ps = True)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ps = True)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -292,6 +295,87 @@ def validate_seismic(model, args, iters=24):
             'val_og_ps/valid_gt_list':valid_gt_list, 
             'val_og_ps/flow_low_list':flow_low_list, 
             'val_og_ps/flow_pr_list':flow_pr_list, 
+        })
+
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ss = True)
+    if len(val_dataset) != 0:   
+        epe_list = []
+        Kepe_list = []
+        Kout_list = []
+
+
+        vis_sample_element = random.sample(range(len(val_dataset)),5)
+        pp_img_list = []
+        ss_img_list = []
+        flow_gt_list = []
+        valid_gt_list = []
+        flow_low_list = []
+        flow_pr_list = []
+
+        flow_loss = 0.0
+
+        for val_id in tqdm(list(range(len(val_dataset))), desc = 'Validation'):
+            image1, image2, flow_gt, valid_gt = val_dataset[val_id]
+            image1 = image1[None].cuda()
+            image2 = image2[None].cuda()
+
+            flow_low, flow_pr = model(image1, image2, iters=iters, test_mode=True)
+            epe = torch.sum((flow_pr[0].cpu() - flow_gt)**2, dim=0).sqrt()
+            epe_list.append(epe.view(-1).numpy())
+
+            mag = torch.sum(flow_gt**2, dim=0).sqrt()
+
+            epe = epe.view(-1)
+            mag = mag.view(-1)
+            # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
+            val = valid_gt.view(-1)
+            mag_val = (mag < args.max_flow) & (valid_gt.view(-1) != 0.0)
+
+            out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
+            Kepe_list.append(epe[mag_val].mean().item())
+            Kout_list.append(out[mag_val].cpu().numpy())
+
+            # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
+            i_loss = (flow_pr[0].cpu() - flow_gt).abs()
+            # flow_loss += (val * i_loss.view(-1)).mean()
+            flow_loss += (val * i_loss.view(-1) * mag_val).mean()
+
+            if val_id in vis_sample_element:
+                pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))
+                ss_img_list.append(wandb.Image(image2, caption=f"{(val_dataset.image_list[val_id][1]).stem}->SS"))
+                flow_gt_list.append(wandb.Image(flow_gt, caption=f"{(val_dataset.flow_list[val_id]).stem}->flow_gt"))
+                valid_gt_list.append(wandb.Image(valid_gt, caption=f"{(val_dataset.flow_list[val_id]).stem}->valid_gt"))
+                flow_low_list.append(wandb.Image(flow_low, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_low"))
+                flow_pr_list.append(wandb.Image(flow_pr, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_pr"))
+
+        # epe = np.mean(np.concatenate(epe_list))
+        epe_all = np.concatenate(epe_list)
+        epe = np.mean(epe_all)
+        px1 = np.mean(epe_all<1)
+        px3 = np.mean(epe_all<3)
+        px5 = np.mean(epe_all<5)
+
+        Kepe_list = np.array(Kepe_list)
+        Kout_list = np.concatenate(Kout_list)
+
+        Kepe = np.mean(Kepe_list)
+        f1 = 100 * np.mean(Kout_list)
+
+        ret['val_loss'] += flow_loss
+        ret.update({
+            'val_og_ss/val_kitti-epe': Kepe, 
+            'val_og_ss/val_kitti-f1': f1, 
+            'val_og_ss/val_epe':epe, 
+            'val_og_ss/val_px1':px1, 
+            'val_og_ss/val_px3':px3, 
+            'val_og_ss/val_px5':px5, 
+            'val_og_ss/val_loss':flow_loss,
+            'val_og_ss/pp_img_list':pp_img_list, 
+            'val_og_ss/ss_img_list':ss_img_list, 
+            'val_og_ss/flow_gt_list':flow_gt_list, 
+            'val_og_ss/valid_gt_list':valid_gt_list, 
+            'val_og_ss/flow_low_list':flow_low_list, 
+            'val_og_ss/flow_pr_list':flow_pr_list, 
         })
     
     return ret

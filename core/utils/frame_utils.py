@@ -29,10 +29,17 @@ def readSeismicCSV(file_path, is_flow = False, equalize = False):
     # Taking the top portion in terms of height from 0 to h-1 via :h
     h = data.shape[0]//8*8
     # Taking the center portion in terms of width from w_0 to w_0+w-1 via w_0:w_0+w
-    w = data.shape[1]//8*8
-    w_0 = (data.shape[1] - w)//2
+    # w = data.shape[1]//8*8
+    # w_0 = (data.shape[1] - w)//2
+    # data = data[:h,w_0:w_0+w]
+    data = data[:h,:]
 
-    data = data[:h,w_0:w_0+w]
+    # Nearest multiple of 8 above for width
+    w = (data.shape[1]+ 7) // 8 * 8
+    # Padding needed for width
+    dw = w - data.shape[1]
+
+    data = np.pad(data, ((0,0),(dw,0)), mode='constant', constant_values=0)
     
     return np.resize(data, (h, w, 1))
 

@@ -59,7 +59,7 @@ class SeismicOriginalDataset(data.Dataset):
         return len(self.image_list)
 
 class SeismicDataset(data.Dataset):
-    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp: bool = True, original_ps: bool = False):
+    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp: bool = True, original_ps: bool = False, original_ss: bool = False):
         self.init_seed = False
         self.equalize = equalize
         self.flow_list = []
@@ -70,9 +70,9 @@ class SeismicDataset(data.Dataset):
         
         if original_pp:
             PP_root    = root / 'PP_data'
-            PS_root    = root / 'synthetic PS' / 'PS_train_txt' / f'{split}_data'
-            flow_root  = root / 'synthetic PS' / 'label_txt'    / f'{split}_data'
-            valid_root = root / 'synthetic PS' / 'gt_txt'       / f'{split}_data'
+            PS_root    = root / 'synthetic_PS_SS_from_PP' / 'PS_SS_train_txt' / f'{split}_data'
+            flow_root  = root / 'synthetic_PS_SS_from_PP' / 'label_txt'       / f'{split}_data'
+            valid_root = root / 'synthetic_PS_SS_from_PP' / 'gt_txt'          / f'{split}_data'
 
             for PS_file in list(PS_root.glob('**/*.csv')):
                 PP_file_name = PS_file.name.split('_')[1]
@@ -86,9 +86,25 @@ class SeismicDataset(data.Dataset):
 
         if original_ps:
             PS_root    = root / 'PS_data'
-            PP_root    = root / 'synthetic PP' / 'PP_train_txt' / f'{split}_data'
-            flow_root  = root / 'synthetic PP' / 'label_txt'    / f'{split}_data'
-            valid_root = root / 'synthetic PP' / 'gt_txt'       / f'{split}_data'
+            PP_root    = root / 'synthetic_PP_from_PS' / 'PP_train_txt' / f'{split}_data'
+            flow_root  = root / 'synthetic_PP_from_PS' / 'label_txt'    / f'{split}_data'
+            valid_root = root / 'synthetic_PP_from_PS' / 'gt_txt'       / f'{split}_data'
+
+            for PP_file in list(PP_root.glob('**/*.csv')):
+                PS_file_name = PP_file.name.split('_')[1]
+                PS_file = PS_root/PS_file_name
+                flow_file = list(flow_root.glob(f'**/{PP_file.name}'))[0]
+                valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
+
+                self.image_list += [ [PP_file, PS_file] ]
+                self.flow_list += [flow_file]
+                self.valid_list += [valid_file]
+        
+        if original_ss:
+            PS_root    = root / 'SS_data'
+            PP_root    = root / 'synthetic_PP_from_SS' / 'PP_train_txt' / f'{split}_data'
+            flow_root  = root / 'synthetic_PP_from_SS' / 'label_txt'    / f'{split}_data'
+            valid_root = root / 'synthetic_PP_from_SS' / 'gt_txt'       / f'{split}_data'
 
             for PP_file in list(PP_root.glob('**/*.csv')):
                 PS_file_name = PP_file.name.split('_')[1]
@@ -330,7 +346,10 @@ class HD1K(FlowDataset):
 
 def fetch_seismic_dataloader(args, split: str = "Train"):
     # Create Dataset for corresponding split
-    ds = SeismicDataset(root = args.root, split = split, equalize = args.equalize, original_pp = args.original_pp, original_ps = args.original_ps )
+    ds = SeismicDataset(root = args.root, split = split, equalize = args.equalize, 
+                        original_pp = args.original_pp, 
+                        original_ps = args.original_ps, 
+                        original_ss = args.original_ss)
     dl = data.DataLoader(ds, batch_size=args.batch_size, 
                         pin_memory=args.pin_memory, shuffle=args.shuffle, 
                         num_workers=args.num_workers, drop_last=args.drop_last)

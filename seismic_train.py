@@ -255,6 +255,7 @@ def get_default_args(args = None):
             root = '/Dataset',
             original_pp = True,
             original_ps = False,
+            original_ss = False,
             checkpoint = './checkpoints/',
             restore_ckpt = None, ###############
             restore_optim = False,
@@ -305,6 +306,7 @@ def get_args(args = None):
         parser.add_argument('--root', help="path to dataset")
         parser.add_argument('--original_pp', action='store_true')
         parser.add_argument('--original_ps', action='store_true')
+        parser.add_argument('--original_ss', action='store_true')
         
         parser.add_argument('--checkpoint', help="path to save checkpoint", default='./checkpoints/')
         parser.add_argument('--restore_ckpt', help="restore checkpoint")
