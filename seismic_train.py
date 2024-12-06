@@ -24,7 +24,8 @@ from torch.utils.tensorboard import SummaryWriter
 import wandb
 
 try:
-    from torch.cuda.amp import GradScaler
+    # from torch.cuda.amp import GradScaler
+    from torch.amp import GradScaler
 except:
     # dummy GradScaler for PyTorch < 1.6
     class GradScaler:
@@ -135,7 +136,7 @@ def wandb_train(args):
         model = nn.DataParallel(RAFT(args), device_ids=args.gpus)
         print(f"Parameter Count: {count_parameters(model)}")
         optimizer, scheduler = fetch_optimizer(args, model)
-        scaler = GradScaler(enabled=args.mixed_precision)
+        scaler = GradScaler('cuda', enabled=args.mixed_precision)
         total_steps = 0
         epoch = 0
 
