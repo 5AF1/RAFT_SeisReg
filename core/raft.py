@@ -9,7 +9,8 @@ from corr import CorrBlock, AlternateCorrBlock
 from utils.utils import bilinear_sampler, coords_grid, upflow8
 
 try:
-    autocast = torch.cuda.amp.autocast
+    # autocast = torch.cuda.amp.autocast
+    autocast = torch.amp.autocast
 except:
     # dummy autocast for PyTorch < 1.6
     class autocast:
@@ -98,7 +99,7 @@ class SeismicRAFT(nn.Module):
         cdim = self.context_dim
 
         # run the feature network
-        with autocast(enabled=self.args.mixed_precision):
+        with autocast('cuda', enabled=self.args.mixed_precision):
             fmap1, fmap2 = self.fnet([image1, image2])        
         
         fmap1 = fmap1.float()
@@ -109,7 +110,7 @@ class SeismicRAFT(nn.Module):
             corr_fn = CorrBlock(fmap1, fmap2, radius=self.args.corr_radius)
 
         # run the context network
-        with autocast(enabled=self.args.mixed_precision):
+        with autocast('cuda', enabled=self.args.mixed_precision):
             cnet = self.cnet(image1)
             net, inp = torch.split(cnet, [hdim, cdim], dim=1)
             net = torch.tanh(net)
@@ -127,7 +128,7 @@ class SeismicRAFT(nn.Module):
 
             flow = coords1 - coords0
             flow = flow[:,1:,:,:]
-            with autocast(enabled=self.args.mixed_precision):
+            with autocast('cuda', enabled=self.args.mixed_precision):
                 net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)
 
             # F(t+1) = F(t) + \Delta(t)
