@@ -59,7 +59,7 @@ class SeismicOriginalDataset(data.Dataset):
         return len(self.image_list)
 
 class SeismicDataset(data.Dataset):
-    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp: bool = True, original_ps: bool = False, original_ss: bool = False):
+    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp: bool = False, original_ps: bool = False, original_ss: bool = False):
         self.init_seed = False
         self.equalize = equalize
         self.flow_list = []
@@ -67,6 +67,9 @@ class SeismicDataset(data.Dataset):
         self.image_list = []
 
         root = Path(root)
+
+        if not (original_pp or original_ps or original_ss):
+            raise ValueError("At least one of original_pp, original_ps, or original_ss must be True")
         
         if original_pp:
             PP_root    = root / 'PP_data'
