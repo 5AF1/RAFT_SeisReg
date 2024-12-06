@@ -67,9 +67,6 @@ class SeismicDataset(data.Dataset):
         self.image_list = []
 
         root = Path(root)
-
-        if not (original_pp or original_ps or original_ss):
-            raise ValueError("At least one of original_pp, original_ps, or original_ss must be True")
         
         if original_pp:
             PP_root    = root / 'PP_data'
