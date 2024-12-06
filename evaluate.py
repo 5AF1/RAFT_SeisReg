@@ -136,7 +136,7 @@ def validate_seismic(model, args, iters=24):
     ret = {'val_loss':0}
 
     if not (args.original_pp or args.original_ps or args.original_ss):
-        raise ValueError("At least one of original_pp, original_ps, or original_ss must be True")
+        print("At least one of original_pp, original_ps, or original_ss must be True")
 
 
     val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = args.original_pp)
