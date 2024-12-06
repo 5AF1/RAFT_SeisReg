@@ -135,7 +135,11 @@ def validate_seismic(model, args, iters=24):
     model.eval()
     ret = {'val_loss':0}
 
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = True)
+    if not (args.original_pp or args.original_ps or args.original_ss):
+        raise ValueError("At least one of original_pp, original_ps, or original_ss must be True")
+
+
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = args.original_pp)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -216,7 +220,7 @@ def validate_seismic(model, args, iters=24):
             'val_og_pp/flow_pr_list':flow_pr_list, 
         })
     
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ps = True)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ps = args.original_ps)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -297,7 +301,7 @@ def validate_seismic(model, args, iters=24):
             'val_og_ps/flow_pr_list':flow_pr_list, 
         })
 
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ss = True)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ss = args.original_ss)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
