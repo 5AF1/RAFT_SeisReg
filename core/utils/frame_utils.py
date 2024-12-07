@@ -41,8 +41,10 @@ def readSeismicCSV(file_path, is_flow = False, equalize = False):
     dw = w - data.shape[1]
 
     data = np.pad(data, ((0,0),(dw,0)), mode='constant', constant_values=0)
+    data = np.resize(data, (h, w, 1))
+    data = np.nan_to_num(data)
     
-    return np.resize(data, (h, w, 1))
+    return data
 
 def writeSeismicFlowCSV(file_path, data):
     df = pd.DataFrame(data*0.002)
