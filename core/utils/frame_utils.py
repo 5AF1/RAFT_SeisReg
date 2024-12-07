@@ -15,6 +15,8 @@ CDF = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 def readSeismicCSV(file_path, is_flow = False, equalize = False):
     data = pd.read_csv(file_path, header=None).to_numpy(dtype=np.float32)
+    if np.isnan(data).any():
+        print(f"\nnan found in {file_path}.\n")
     if is_flow:
         data = data / 0.002
     
