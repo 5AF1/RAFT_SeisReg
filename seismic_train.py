@@ -40,6 +40,20 @@ except:
         def update(self):
             pass
 
+# >>> warning print >>>
+import warnings
+warnings.simplefilter('always')  # Show all warnings
+warnings.showwarning = warnings.formatwarning  # Ensure full traceback
+
+# Optional: Use this for even more verbose stack traces
+import traceback
+def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+    log = f"{message}\n{category.__name__} (in {filename}, line {lineno}):\n"
+    log += "".join(traceback.format_stack())
+    print(log)
+
+warnings.showwarning = warn_with_traceback
+# <<< warning print <<<
 
 # exclude extremly large displacements
 # MAX_FLOW = 400
