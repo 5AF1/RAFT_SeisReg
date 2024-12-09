@@ -158,27 +158,24 @@ def validate_seismic(model, args, iters=24):
 
         for val_id in tqdm(list(range(len(val_dataset))), desc = f'Val org_pp for {len(val_dataset)} pair'):
             image1, image2, flow_gt, valid_gt = val_dataset[val_id]
-            print("flow_gt, valid_gt", flow_gt, valid_gt)
             image1 = image1[None].cuda()
             image2 = image2[None].cuda()
 
             flow_low, flow_pr = model(image1, image2, iters=iters, test_mode=True)
-            print("flow_pr", flow_pr)
             epe = torch.sum((flow_pr[0].cpu() - flow_gt)**2, dim=0).sqrt()
-            print("epe",epe)
             epe_list.append(epe.view(-1).numpy())
 
             mag = torch.sum(flow_gt**2, dim=0).sqrt()
 
             epe = epe.view(-1)
             mag = mag.view(-1)
-            print("epe,mag",epe,mag)
             # val = (valid_gt.view(-1) >= 0.5) & (mag < args.max_flow)
             val = valid_gt.view(-1)
             mag_val = (mag < args.max_flow) & (valid_gt.view(-1) != 0.0)
 
             out = ((epe > 3.0) & ((epe/mag) > 0.05)).float()
-            print("out",out)
+            print("out abs sum",out.abs().sum())
+            print("mag_val abs sum",mag_val.abs().sum())
             Kepe_list.append(epe[mag_val].mean().item())
             Kout_list.append(out[mag_val].cpu().numpy())
             print("Kout_list",Kout_list)
