@@ -50,7 +50,7 @@ import traceback
 def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
     log = f"{message}\n{category.__name__} (in {filename}, line {lineno}):\n"
     log += "".join(traceback.format_stack())
-    print(log)
+    # print(log)
 
 warnings.showwarning = warn_with_traceback
 # <<< warning print <<<
