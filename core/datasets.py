@@ -17,6 +17,7 @@ from utils.augmentor import FlowAugmentor, SparseFlowAugmentor
 
 
 class SeismicOriginalDataset(data.Dataset):
+    #TODO: Fix cdf and pp ps ss input method
     def __init__(self, root: str, equalize = False):
         self.init_seed = False
         self.equalize = equalize
@@ -133,8 +134,12 @@ class SeismicDataset(data.Dataset):
         if np.any((valid < 0.0) | (valid > 5000.0)):
             valid[:] = 0.0
 
-        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize)
-        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize)
+        original = self.image_list[index][0].parent.name
+        if original not in ["PP_data", "PS_data", "SS_data"]:
+            original = self.image_list[index][1].parent.name
+
+        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize, original = original)
+        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize, original = original)
 
         pp_data = torch.from_numpy(pp_data).permute(2, 0, 1).float()
         ps_data = torch.from_numpy(ps_data).permute(2, 0, 1).float()
