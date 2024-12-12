@@ -138,8 +138,8 @@ class SeismicDataset(data.Dataset):
         if original not in ["PP_data", "PS_data", "SS_data"]:
             original = self.image_list[index][1].parent.name
 
-        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize, original = original)
-        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize, original = original)
+        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize)#, original = original)
+        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize)#, original = original)
 
         pp_data = torch.from_numpy(pp_data).permute(2, 0, 1).float()
         ps_data = torch.from_numpy(ps_data).permute(2, 0, 1).float()
