@@ -162,6 +162,7 @@ def validate_seismic(model, args, iters=24):
             image2 = image2[None].cuda()
 
             flow_low, flow_pr = model(image1, image2, iters=iters, test_mode=True)
+            flow_low, flow_pr = flow_low.detach().cpu(), flow_pr.detach().cpu()
             epe = torch.sum((flow_pr[0].cpu() - flow_gt)**2, dim=0).sqrt()
             epe_list.append(epe.view(-1).numpy())
 
@@ -190,6 +191,10 @@ def validate_seismic(model, args, iters=24):
                 valid_gt_list.append(wandb.Image(valid_gt, caption=f"{(val_dataset.flow_list[val_id]).stem}->valid_gt"))
                 flow_low_list.append(wandb.Image(flow_low, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_low"))
                 flow_pr_list.append(wandb.Image(flow_pr, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_pr"))
+
+            torch.cuda.empty_cache()
+            del image1
+            del image2
 
         # epe = np.mean(np.concatenate(epe_list))
         epe_all = np.concatenate(epe_list)
@@ -244,6 +249,7 @@ def validate_seismic(model, args, iters=24):
             image2 = image2[None].cuda()
 
             flow_low, flow_pr = model(image1, image2, iters=iters, test_mode=True)
+            flow_low, flow_pr = flow_low.detach().cpu(), flow_pr.detach().cpu()
             epe = torch.sum((flow_pr[0].cpu() - flow_gt)**2, dim=0).sqrt()
             epe_list.append(epe.view(-1).numpy())
 
@@ -271,6 +277,10 @@ def validate_seismic(model, args, iters=24):
                 valid_gt_list.append(wandb.Image(valid_gt, caption=f"{(val_dataset.flow_list[val_id]).stem}->valid_gt"))
                 flow_low_list.append(wandb.Image(flow_low, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_low"))
                 flow_pr_list.append(wandb.Image(flow_pr, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_pr"))
+
+            torch.cuda.empty_cache()
+            del image1
+            del image2
 
         # epe = np.mean(np.concatenate(epe_list))
         epe_all = np.concatenate(epe_list)
@@ -325,6 +335,7 @@ def validate_seismic(model, args, iters=24):
             image2 = image2[None].cuda()
 
             flow_low, flow_pr = model(image1, image2, iters=iters, test_mode=True)
+            flow_low, flow_pr = flow_low.detach().cpu(), flow_pr.detach().cpu()
             epe = torch.sum((flow_pr[0].cpu() - flow_gt)**2, dim=0).sqrt()
             epe_list.append(epe.view(-1).numpy())
 
@@ -352,6 +363,10 @@ def validate_seismic(model, args, iters=24):
                 valid_gt_list.append(wandb.Image(valid_gt, caption=f"{(val_dataset.flow_list[val_id]).stem}->valid_gt"))
                 flow_low_list.append(wandb.Image(flow_low, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_low"))
                 flow_pr_list.append(wandb.Image(flow_pr, caption=f"{(val_dataset.image_list[val_id][0]).stem}->flow_pr"))
+
+            torch.cuda.empty_cache()
+            del image1
+            del image2
 
         # epe = np.mean(np.concatenate(epe_list))
         epe_all = np.concatenate(epe_list)
