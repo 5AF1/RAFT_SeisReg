@@ -17,21 +17,35 @@ from utils.augmentor import FlowAugmentor, SparseFlowAugmentor
 
 
 class SeismicOriginalDataset(data.Dataset):
-    #TODO: Fix cdf and pp ps ss input method
-    def __init__(self, root: str, equalize = False):
+    def __init__(self, root: str, equalize = False, original_ps: bool = False, original_rr: bool = False, original_tt: bool = False):
         self.init_seed = False
         self.equalize = equalize
         self.image_list = []
 
         root = Path(root)
-        PP_root   = root / 'PP_data'
-        PS_root   = root / 'PS_data'
+        PP_root   = root / 'org_pp'
+        if original_ps:
+            PS_root   = root / 'org_ps'
+            for PS_file in list(PS_root.glob('**/*.csv')):
+                PP_file_name = PS_file.name#.split('_')[1]
+                PP_file = PP_root/PP_file_name
 
-        for PS_file in list(PS_root.glob('**/*.csv')):
-            PP_file_name = PS_file.name#.split('_')[1]
-            PP_file = PP_root/PP_file_name
+                self.image_list += [ [PP_file, PS_file] ]
 
-            self.image_list += [ [PP_file, PS_file] ]
+        elif original_rr:
+            PS_root   = root / 'org_rr'
+            for PS_file in list(PS_root.glob('**/*.csv')):
+                PP_file_name = PS_file.name#.split('_')[1]
+                PP_file = PP_root/PP_file_name
+
+                self.image_list += [ [PP_file, PS_file] ]
+        elif original_tt:
+            PS_root   = root / 'org_tt'
+            for PS_file in list(PS_root.glob('**/*.csv')):
+                PP_file_name = PS_file.name#.split('_')[1]
+                PP_file = PP_root/PP_file_name
+
+                self.image_list += [ [PP_file, PS_file] ]
 
     def __getitem__(self, index):
 
@@ -53,6 +67,9 @@ class SeismicOriginalDataset(data.Dataset):
 
         # pp_data[:,:95,:]  = 0.0
         # ps_data[:,:175,:] = 0.0
+
+        zero_columns = (ps_data.squeeze(0) == 0.0).all(dim=0)
+        pp_data[:, :, zero_columns] = 0.0
 
         return pp_data, ps_data
         

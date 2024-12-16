@@ -19,6 +19,9 @@ def get_default_args(args = None):
     if args is None:
         args = Namespace(
             root = 'PP_PS_data',
+            org_ps = True,
+            org_rr = False,
+            org_tt = False,
             checkpoint_file = 'checkpoints/seismic-raft_7000.pth',
             output_path = None,
             
@@ -37,6 +40,9 @@ def get_args(args = None):
         parser = argparse.ArgumentParser()
 
         parser.add_argument('--root', help="path to dataset")
+        parser.add_argument('--org_ps', action='store_true')
+        parser.add_argument('--org_rr', action='store_true')
+        parser.add_argument('--org_tt', action='store_true')
         parser.add_argument('--checkpoint_file', help="path to saved checkpoint .pth file", default='./checkpoints/seismic-raft_7000.pth')
         parser.add_argument('--output_path', default=None, help="output path to save flow csv files. Optional")
         parser.add_argument('--iters', type=int, default=24)

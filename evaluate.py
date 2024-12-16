@@ -114,7 +114,7 @@ def create_flow_submission(model, args, iters=24):
     flow_file_dir.mkdir(parents=True, exist_ok=True)
 
     model.eval()
-    dataset = datasets.SeismicOriginalDataset(root = args.root, equalize=args.equalize)
+    dataset = datasets.SeismicOriginalDataset(root = args.root, equalize=args.equalize, original_ps = args.org_ps, original_rr = args.org_rr, original_tt = args.org_tt)
     for ds_id in tqdm(list(range(len(dataset))), desc = f'Saving for {Path(args.checkpoint_file).stem}'):
         image1, image2 = dataset[ds_id]
         image1 = image1[None].cuda()
@@ -124,8 +124,8 @@ def create_flow_submission(model, args, iters=24):
         # np_flow_pr = flow_pr.squeeze().numpy(force = True)
         np_flow_pr = flow_pr.squeeze().cpu().numpy()
 
-        flow_file =  flow_file_dir / dataset.image_list[ds_id][0].name
-        flow_file.parent.mkdir(exist_ok=True)
+        flow_file =  flow_file_dir / dataset.image_list[ds_id][1].parent.stem /dataset.image_list[ds_id][0].name
+        flow_file.parent.mkdir(parents=True, exist_ok=True)
 
         frame_utils.writeSeismicFlowCSV(flow_file, np_flow_pr)
 
