@@ -263,9 +263,13 @@ def get_default_args(args = None):
 
             name = None,
             root = '/Dataset',
-            original_pp = True,
-            original_ps = False,
-            original_ss = False,
+            # original_pp = True,
+            # original_ps = False,
+            # original_ss = False,
+            original_pp_syn_path = '',
+            original_ps_syn_path = '',
+            original_ss_syn_path = '',
+
             checkpoint = './checkpoints/',
             restore_ckpt = None, ###############
             restore_optim = False,
@@ -314,9 +318,12 @@ def get_args(args = None):
         parser.add_argument('--name', default=None, help="name your experiment")
         # parser.add_argument('--stage', help="determines which dataset to use for training")
         parser.add_argument('--root', help="path to dataset")
-        parser.add_argument('--original_pp', action='store_true')
-        parser.add_argument('--original_ps', action='store_true')
-        parser.add_argument('--original_ss', action='store_true')
+        # parser.add_argument('--original_pp', action='store_true')
+        # parser.add_argument('--original_ps', action='store_true')
+        # parser.add_argument('--original_ss', action='store_true')
+        parser.add_argument('--original_pp_syn_path', nargs='?', default='', help='path to synthetic part used with original PP data')
+        parser.add_argument('--original_ps_syn_path', nargs='?', default='', help='path to synthetic part used with original PS data')
+        parser.add_argument('--original_ss_syn_path', nargs='?', default='', help='path to synthetic part used with original SS data')
         
         parser.add_argument('--checkpoint', help="path to save checkpoint", default='./checkpoints/')
         parser.add_argument('--restore_ckpt', help="restore checkpoint")
@@ -365,8 +372,8 @@ def get_args(args = None):
     if args.name is None:
         args.name = f'{args.wandb_project}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{args.wandb_run_id}'
 
-    if args.original_pp == False and args.original_ps == False:
-        args.original_pp = True
+    # if args.original_pp == False and args.original_ps == False:
+    #     args.original_pp = True
     
     return args
 

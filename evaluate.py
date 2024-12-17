@@ -86,9 +86,9 @@ def create_seismic_submission(model, args, output_path = None, split = 'Validati
 
     model.eval()
     dataset = datasets.SeismicDataset(root = args.root, split=split, equalize=args.equalize, 
-                                        original_pp = args.original_pp, 
-                                        original_ps = args.original_ps, 
-                                        original_ss = args.original_ss)
+                                        original_pp_syn_path = args.original_pp_syn_path, 
+                                        original_ps_syn_path = args.original_ps_syn_path, 
+                                        original_ss_syn_path = args.original_ss_syn_path)
     for ds_id in tqdm(list(range(len(dataset))), desc = f'Saving {split}'):
         image1, image2, flow_gt, valid_gt = dataset[ds_id]
         image1 = image1[None].cuda()
@@ -135,11 +135,11 @@ def validate_seismic(model, args, iters=24):
     model.eval()
     ret = {'val_loss':0}
 
-    if not (args.original_pp or args.original_ps or args.original_ss):
-        print("At least one of original_pp, original_ps, or original_ss must be True")
+    if not (args.original_pp_syn_path or args.original_ps_syn_path or args.original_ss_syn_path):
+        print("At least one of original_pp_syn_path, original_ps_syn_path, or original_ss_syn_path must be passed")
 
 
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp = args.original_pp)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_pp_syn_path = args.original_pp_syn_path)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -226,7 +226,7 @@ def validate_seismic(model, args, iters=24):
             'val_og_pp/flow_pr_list':flow_pr_list, 
         })
     
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ps = args.original_ps)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ps_syn_path = args.original_ps_syn_path)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []
@@ -312,7 +312,7 @@ def validate_seismic(model, args, iters=24):
             'val_og_ps/flow_pr_list':flow_pr_list, 
         })
 
-    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ss = args.original_ss)
+    val_dataset = datasets.SeismicDataset(root = args.root, split='Validation', equalize=args.equalize, original_ss_syn_path = args.original_ss_syn_path)
     if len(val_dataset) != 0:   
         epe_list = []
         Kepe_list = []

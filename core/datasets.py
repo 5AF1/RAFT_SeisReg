@@ -77,7 +77,7 @@ class SeismicOriginalDataset(data.Dataset):
         return len(self.image_list)
 
 class SeismicDataset(data.Dataset):
-    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp: bool = False, original_ps: bool = False, original_ss: bool = False):
+    def __init__(self, root: str, split: str = "Train", equalize = False, original_pp_syn_path: str = '', original_ps_syn_path: str = '', original_ss_syn_path: str = ''):
         self.init_seed = False
         self.equalize = equalize
         self.flow_list = []
@@ -86,11 +86,12 @@ class SeismicDataset(data.Dataset):
 
         root = Path(root)
         
-        if original_pp:
+        if original_pp_syn_path:
             PP_root    = root / 'PP_data'
-            PS_root    = root / 'synthetic_PS_SS_from_PP' / 'PS_SS_train_txt' / f'{split}_data'
-            flow_root  = root / 'synthetic_PS_SS_from_PP' / 'label_txt'       / f'{split}_data'
-            valid_root = root / 'synthetic_PS_SS_from_PP' / 'gt_txt'          / f'{split}_data'
+            # PS_root    = root / 'synthetic_PS_SS_from_PP' / 'PS_SS_train_txt' / f'{split}_data'
+            PS_root    = root / Path(original_pp_syn_path)                      / f'{split}_data'
+            flow_root  = root / Path(original_pp_syn_path).parent / 'label_txt' / f'{split}_data'
+            valid_root = root / Path(original_pp_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PS_file in list(PS_root.glob('**/*.csv')):
                 PP_file_name = PS_file.name.split('_')[1]
@@ -102,11 +103,12 @@ class SeismicDataset(data.Dataset):
                 self.flow_list += [flow_file]
                 self.valid_list += [valid_file]
 
-        if original_ps:
+        if original_ps_syn_path:
             PS_root    = root / 'PS_data'
-            PP_root    = root / 'synthetic_PP_from_PS' / 'PP_train_txt' / f'{split}_data'
-            flow_root  = root / 'synthetic_PP_from_PS' / 'label_txt'    / f'{split}_data'
-            valid_root = root / 'synthetic_PP_from_PS' / 'gt_txt'       / f'{split}_data'
+            # PP_root    = root / 'synthetic_PP_from_PS' / 'PP_train_txt' / f'{split}_data'
+            PP_root    = root / Path(original_ps_syn_path)                      / f'{split}_data'
+            flow_root  = root / Path(original_ps_syn_path).parent / 'label_txt' / f'{split}_data'
+            valid_root = root / Path(original_ps_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PP_file in list(PP_root.glob('**/*.csv')):
                 PS_file_name = PP_file.name.split('_')[1]
@@ -118,11 +120,12 @@ class SeismicDataset(data.Dataset):
                 self.flow_list += [flow_file]
                 self.valid_list += [valid_file]
         
-        if original_ss:
+        if original_ss_syn_path:
             PS_root    = root / 'SS_data'
-            PP_root    = root / 'synthetic_PP_from_SS' / 'PP_train_txt' / f'{split}_data'
-            flow_root  = root / 'synthetic_PP_from_SS' / 'label_txt'    / f'{split}_data'
-            valid_root = root / 'synthetic_PP_from_SS' / 'gt_txt'       / f'{split}_data'
+            # PP_root    = root / 'synthetic_PP_from_SS' / 'PP_train_txt' / f'{split}_data'
+            PP_root    = root / Path(original_ss_syn_path)                      / f'{split}_data'
+            flow_root  = root / Path(original_ss_syn_path).parent / 'label_txt' / f'{split}_data'
+            valid_root = root / Path(original_ss_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PP_file in list(PP_root.glob('**/*.csv')):
                 PS_file_name = PP_file.name.split('_')[1]
@@ -369,9 +372,9 @@ class HD1K(FlowDataset):
 def fetch_seismic_dataloader(args, split: str = "Train"):
     # Create Dataset for corresponding split
     ds = SeismicDataset(root = args.root, split = split, equalize = args.equalize, 
-                        original_pp = args.original_pp, 
-                        original_ps = args.original_ps, 
-                        original_ss = args.original_ss)
+                        original_pp_syn_path = args.original_pp_syn_path, 
+                        original_ps_syn_path = args.original_ps_syn_path, 
+                        original_ss_syn_path = args.original_ss_syn_path)
     dl = data.DataLoader(ds, batch_size=args.batch_size, 
                         pin_memory=args.pin_memory, shuffle=args.shuffle, 
                         num_workers=args.num_workers, drop_last=args.drop_last)
