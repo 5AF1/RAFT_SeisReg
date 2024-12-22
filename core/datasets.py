@@ -166,6 +166,12 @@ class SeismicDataset(data.Dataset):
         flow = torch.from_numpy(flow).permute(2, 0, 1).float()
         valid = torch.from_numpy(valid).permute(2, 0, 1).float()[0]
 
+        zero_columns = (ps_data.squeeze(0) == 0.0).all(dim=0)
+        valid[:, zero_columns] = 0.0
+
+        zero_columns = (pp_data.squeeze(0) == 0.0).all(dim=0)
+        valid[:, zero_columns] = 0.0
+
         # p80 = int(pp_data.shape[1] * 0.80)
         # flow[:,:95,:]   = 0.0
         # flow[:,p80:,:]  = 0.0
