@@ -171,6 +171,7 @@ class SeismicDataset(data.Dataset):
 
         zero_columns = (pp_data.squeeze(0) == 0.0).all(dim=0)
         valid[:, zero_columns] = 0.0
+        valid = valid / valid.max()
 
         # p80 = int(pp_data.shape[1] * 0.80)
         # flow[:,:95,:]   = 0.0
