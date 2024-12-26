@@ -173,7 +173,8 @@ class SeismicDataset(data.Dataset):
         valid[:, zero_columns] = 0.0
 
         v_mask = (valid != 0)
-        valid[v_mask] = (valid[v_mask] - valid[v_mask].min()) / (valid[v_mask].max() - valid[v_mask].min())
+        if torch.sum(v_mask):
+            valid[v_mask] = (valid[v_mask] - valid[v_mask].min()) / (valid[v_mask].max() - valid[v_mask].min())
 
         # p80 = int(pp_data.shape[1] * 0.80)
         # flow[:,:95,:]   = 0.0
