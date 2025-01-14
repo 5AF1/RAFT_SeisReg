@@ -151,7 +151,7 @@ class SeismicDataset(data.Dataset):
 
         flow = frame_utils.readSeismicCSV(self.flow_list[index], is_flow = True)
         valid = frame_utils.readSeismicCSV(self.valid_list[index])
-        if np.any((valid < 0.0) | (valid > 5000.0)):
+        if np.any((valid < 0.0) | (valid > 50.0)):
             valid[:] = 0.0
 
         original = self.image_list[index][0].parent.name
