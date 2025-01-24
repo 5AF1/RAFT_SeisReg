@@ -186,11 +186,11 @@ class SeismicDataset(data.Dataset):
         # if np.any((valid < 0.0) | (valid > 50.0)):
         #     valid[:] = 0.0
         valid = flow[:,:]
-        valid_flow = flow != 0
-        valid[valid_flow] = (flow[valid_flow] - self.flow_min) / (self.flow_max - self.flow_min)
+        # valid_flow = flow != 0
+        # valid[valid_flow] = (flow[valid_flow] - self.flow_min) / (self.flow_max - self.flow_min)
         valid_flow = valid != 0
-        valid_max = np.max(valid[valid_flow])
-        valid[valid_flow] = valid_max/valid[valid_flow]
+        # valid_max = np.max(valid[valid_flow])
+        valid[valid_flow] = self.flow_max/valid[valid_flow]
 
         original = self.image_list[index][0].parent.name
         if original not in ["PP_data", "PS_data", "SS_data"]:
