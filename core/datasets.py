@@ -167,6 +167,9 @@ class SeismicDataset(data.Dataset):
                     self.image_list += [ [PP_file, PS_file] ]
                     self.flow_list += [flow_file]
                     # self.valid_list += [valid_file]
+        
+        print(f"max flow : {self.flow_max}")
+        print(f"min flow : {self.flow_min}")
 
     def __getitem__(self, index):
 
