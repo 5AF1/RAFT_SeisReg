@@ -107,7 +107,7 @@ class SeismicDataset(data.Dataset):
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 2500:
+                if flow_min > 0 and flow_max < 1000:
                     if flow_min < self.flow_min:
                         self.flow_min = flow_min
                     if flow_max > self.flow_max:
@@ -133,7 +133,7 @@ class SeismicDataset(data.Dataset):
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 2500:
+                if flow_min > 0 and flow_max < 1000:
                     if flow_min < self.flow_min:
                         self.flow_min = flow_min
                     if flow_max > self.flow_max:
@@ -159,7 +159,7 @@ class SeismicDataset(data.Dataset):
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 2500:
+                if flow_min > 0 and flow_max < 1000:
                     if flow_min < self.flow_min:
                         self.flow_min = flow_min
                     if flow_max > self.flow_max:
