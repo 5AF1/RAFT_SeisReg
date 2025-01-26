@@ -82,11 +82,8 @@ class SeismicDataset(data.Dataset):
         self.init_seed = False
         self.equalize = equalize
         self.flow_list = []
-        # self.valid_list = []
+        self.valid_list = []
         self.image_list = []
-
-        self.flow_min = 3000
-        self.flow_max = 0
 
         root = Path(root)
         
@@ -101,20 +98,15 @@ class SeismicDataset(data.Dataset):
                 PP_file_name = PS_file.name.split('_')[1]
                 PP_file = PP_root/PP_file_name
                 flow_file = list(flow_root.glob(f'**/{PS_file.name}'))[0]
-                # valid_file = list(valid_root.glob(f'**/{PS_file.name}'))[0]
+                valid_file = list(valid_root.glob(f'**/{PS_file.name}'))[0]
 
                 flow = frame_utils.readSeismicCSV(flow_file, is_flow = True)
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 1000:
-                    if flow_min < self.flow_min:
-                        self.flow_min = flow_min
-                    if flow_max > self.flow_max:
-                        self.flow_max = flow_max
-                    self.image_list += [ [PP_file, PS_file] ]
-                    self.flow_list += [flow_file]
-                    # self.valid_list += [valid_file]
+                self.image_list += [ [PP_file, PS_file] ]
+                self.flow_list += [flow_file]
+                self.valid_list += [valid_file]
 
         if original_ps_syn_path:
             PS_root    = root / 'PS_data'
@@ -127,20 +119,15 @@ class SeismicDataset(data.Dataset):
                 PS_file_name = PP_file.name.split('_')[1]
                 PS_file = PS_root/PS_file_name
                 flow_file = list(flow_root.glob(f'**/{PP_file.name}'))[0]
-                # valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
+                valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
 
                 flow = frame_utils.readSeismicCSV(flow_file, is_flow = True)
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 1000:
-                    if flow_min < self.flow_min:
-                        self.flow_min = flow_min
-                    if flow_max > self.flow_max:
-                        self.flow_max = flow_max
-                    self.image_list += [ [PP_file, PS_file] ]
-                    self.flow_list += [flow_file]
-                    # self.valid_list += [valid_file]
+                self.image_list += [ [PP_file, PS_file] ]
+                self.flow_list += [flow_file]
+                self.valid_list += [valid_file]
         
         if original_ss_syn_path:
             PS_root    = root / 'SS_data'
@@ -153,23 +140,16 @@ class SeismicDataset(data.Dataset):
                 PS_file_name = PP_file.name.split('_')[1]
                 PS_file = PS_root/PS_file_name
                 flow_file = list(flow_root.glob(f'**/{PP_file.name}'))[0]
-                # valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
+                valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
 
                 flow = frame_utils.readSeismicCSV(flow_file, is_flow = True)
                 valid_flow = flow != 0
                 flow_max, flow_min = np.max(flow[valid_flow]), np.min(flow[valid_flow])
 
-                if flow_min > 0 and flow_max < 1000:
-                    if flow_min < self.flow_min:
-                        self.flow_min = flow_min
-                    if flow_max > self.flow_max:
-                        self.flow_max = flow_max
-                    self.image_list += [ [PP_file, PS_file] ]
-                    self.flow_list += [flow_file]
-                    # self.valid_list += [valid_file]
-        
-        print(f"max flow : {self.flow_max}")
-        print(f"min flow : {self.flow_min}")
+                self.image_list += [ [PP_file, PS_file] ]
+                self.flow_list += [flow_file]
+                self.valid_list += [valid_file]
+
 
     def __getitem__(self, index):
 
@@ -185,15 +165,9 @@ class SeismicDataset(data.Dataset):
 
         flow = frame_utils.readSeismicCSV(self.flow_list[index], is_flow = True)
 
-        # valid = frame_utils.readSeismicCSV(self.valid_list[index])
-        # if np.any((valid < 0.0) | (valid > 50.0)):
-        #     valid[:] = 0.0
-        valid = flow[:,:]
-        # valid_flow = flow != 0
-        # valid[valid_flow] = (flow[valid_flow] - self.flow_min) / (self.flow_max - self.flow_min)
-        valid_flow = valid != 0
-        # valid_max = np.max(valid[valid_flow])
-        valid[valid_flow] = self.flow_max/valid[valid_flow]
+        valid = frame_utils.readSeismicCSV(self.valid_list[index])
+        if np.any((valid < 0.0) | (valid > 50.0)):
+            valid[:] = 0.0
 
         original = self.image_list[index][0].parent.name
         if original not in ["PP_data", "PS_data", "SS_data"]:
