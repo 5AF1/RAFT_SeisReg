@@ -70,6 +70,9 @@ def sequence_loss(flow_preds, flow_gt, valid, gamma=0.8, max_flow=400):
     for i in range(n_predictions):
         i_weight = gamma**(n_predictions - i - 1)
         i_loss = (flow_preds[i] - flow_gt).abs()
+
+        i_loss = torch.where(i_loss > 1, i_loss ** 2, i_loss)
+
         # flow_loss += i_weight * (valid[:, None] * i_loss).mean()
 
         # flow_loss += i_weight * (valid[:, None] * i_loss * mag_valid[:, None]).mean()

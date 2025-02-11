@@ -181,6 +181,7 @@ def validate_seismic(model, args, iters=24):
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
+            i_loss = torch.where(i_loss > 1, i_loss ** 2, i_loss)
             # flow_loss += (val * i_loss.view(-1)).mean()
 
             # flow_loss += (val * i_loss.view(-1) * mag_val).mean()
@@ -272,6 +273,7 @@ def validate_seismic(model, args, iters=24):
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
+            i_loss = torch.where(i_loss > 1, i_loss ** 2, i_loss)
             # flow_loss += (val * i_loss.view(-1)).mean()
 
             # flow_loss += (val * i_loss.view(-1) * mag_val).mean()
@@ -363,6 +365,7 @@ def validate_seismic(model, args, iters=24):
 
             # valid = (valid_gt >= 0.5) & (mag < args.max_flow)
             i_loss = (flow_pr[0].cpu() - flow_gt).abs()
+            i_loss = torch.where(i_loss > 1, i_loss ** 2, i_loss)
             # flow_loss += (val * i_loss.view(-1)).mean()
 
             # flow_loss += (val * i_loss.view(-1) * mag_val).mean()
