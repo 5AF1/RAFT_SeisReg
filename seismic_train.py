@@ -294,6 +294,7 @@ def get_default_args(args = None):
             clip=1.0,
             dropout=0.0,
             gamma=0.85,
+            sigma = 4.0,
             add_noise=False,
             
             seed = 1234,
@@ -355,6 +356,7 @@ def get_args(args = None):
         parser.add_argument('--clip', type=float, default=1.0)
         parser.add_argument('--dropout', type=float, default=0.0)
         parser.add_argument('--gamma', type=float, default=0.8, help='exponential weighting')
+        parser.add_argument('--sigma', type=float, default=4.0, help='Standard deviation for Gaussian kernel.')
         parser.add_argument('--add_noise', action='store_true')
 
         parser.add_argument('--seed', type=int, default=1234)

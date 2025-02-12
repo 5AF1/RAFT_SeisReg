@@ -22,6 +22,31 @@ except:
             pass        
 
 
+def gaussian_kernel(sigma, truncate=4.0):
+    """Create a 2D Gaussian kernel similar to scipy.ndimage.gaussian_filter."""
+    radius = int(truncate * sigma + 0.5)  # Compute radius
+    size = 2 * radius + 1  # Kernel size
+
+    coords = torch.arange(-radius, radius + 1, dtype=torch.float32)
+    g = torch.exp(-0.5 * (coords / sigma) ** 2)  # 1D Gaussian
+    g /= g.sum()  # Normalize
+
+    kernel_2d = g[:, None] * g[None, :]  # Outer product to form 2D Gaussian
+    kernel_2d /= kernel_2d.sum()  # Normalize again to ensure sum = 1
+
+    return kernel_2d.view(1, 1, size, size)  # Shape: (1,1,H,W) for conv2d
+
+
+class GaussianBlur(nn.Module):
+    def __init__(self, sigma, truncate=4.0):
+        super().__init__()
+        kernel = gaussian_kernel(sigma, truncate)
+        self.register_buffer("kernel", kernel)  # Ensures kernel is part of model but NOT trainable
+
+    def forward(self, x):
+        padding = self.kernel.shape[-1] // 2  # Ensure proper padding
+        return F.conv2d(x, self.kernel, padding=padding, groups=1)
+
 class SeismicRAFT(nn.Module):
     def __init__(self, args):
         super(SeismicRAFT, self).__init__()
@@ -55,6 +80,8 @@ class SeismicRAFT(nn.Module):
             self.fnet = SeismicBasicEncoder(output_dim=256, norm_fn='instance', dropout=args.dropout)        
             self.cnet = SeismicBasicEncoder(output_dim=hdim+cdim, norm_fn='batch', dropout=args.dropout)
             self.update_block = SeismicBasicUpdateBlock(self.args, hidden_dim=hdim)
+        
+        self.gaussian_blur = GaussianBlur(sigma=args.sigma)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -142,6 +169,8 @@ class SeismicRAFT(nn.Module):
                 flow_up = upflow8(flow_up)
             else:
                 flow_up = self.upsample_flow(flow_up, up_mask)
+
+            flow_up = self.gaussian_blur(flow_up)
             
             flow_predictions.append(flow_up)
 
