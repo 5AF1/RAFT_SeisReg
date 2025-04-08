@@ -187,7 +187,7 @@ def validate_seismic(model, args, iters=24):
             curr_loss = (val * i_loss.view(-1) * mag_val)
             loss_mask = (curr_loss != 0)
             if loss_mask.sum():
-                flow_loss += curr_loss[loss_mask].sum()/loss_mask.sum()
+                flow_loss += curr_loss[loss_mask].sum()/val.sum()
 
             if val_id in vis_sample_element:
                 pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))
@@ -278,7 +278,7 @@ def validate_seismic(model, args, iters=24):
             curr_loss = (val * i_loss.view(-1) * mag_val)
             loss_mask = (curr_loss != 0)
             if loss_mask.sum():
-                flow_loss += curr_loss[loss_mask].sum()/loss_mask.sum()
+                flow_loss += curr_loss[loss_mask].sum()/val.sum()
 
             if val_id in vis_sample_element:
                 pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))
@@ -369,7 +369,7 @@ def validate_seismic(model, args, iters=24):
             curr_loss = (val * i_loss.view(-1) * mag_val)
             loss_mask = (curr_loss != 0)
             if loss_mask.sum():
-                flow_loss += curr_loss[loss_mask].sum()/loss_mask.sum()
+                flow_loss += curr_loss[loss_mask].sum()/val.sum()
 
             if val_id in vis_sample_element:
                 pp_img_list.append(wandb.Image(image1, caption=f"{(val_dataset.image_list[val_id][0]).stem}->PP"))
