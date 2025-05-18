@@ -71,7 +71,7 @@ class SeismicOriginalDataset(data.Dataset):
         zero_columns = (ps_data.squeeze(0) == 0.0).all(dim=0)
         pp_data[:, :, zero_columns] = 0.0
 
-        return pp_data, ps_data
+        return pp_data, -ps_data
         
     def __len__(self):
         return len(self.image_list)
