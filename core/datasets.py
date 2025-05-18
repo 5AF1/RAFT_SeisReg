@@ -59,8 +59,8 @@ class SeismicOriginalDataset(data.Dataset):
 
         index = index % len(self.image_list)
 
-        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize)
-        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize)
+        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize, original = "PP_data")
+        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize, original = "PS_data")
 
         pp_data = torch.from_numpy(pp_data).permute(2, 0, 1).float()
         ps_data = torch.from_numpy(ps_data).permute(2, 0, 1).float()
@@ -158,8 +158,8 @@ class SeismicDataset(data.Dataset):
         if original not in ["PP_data", "PS_data", "SS_data"]:
             original = self.image_list[index][1].parent.name
 
-        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize)#, original = original)
-        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize)#, original = original)
+        pp_data = frame_utils.readSeismicCSV(self.image_list[index][0], equalize = self.equalize, original = original)
+        ps_data = frame_utils.readSeismicCSV(self.image_list[index][1], equalize = self.equalize, original = original)
 
         pp_data = torch.from_numpy(pp_data).permute(2, 0, 1).float()
         ps_data = torch.from_numpy(ps_data).permute(2, 0, 1).float()
@@ -191,7 +191,7 @@ class SeismicDataset(data.Dataset):
         # valid[p80:] = 0.0
         # valid[:95] = 0.0
 
-        return pp_data, ps_data, flow, valid
+        return pp_data, -ps_data, flow, valid
 
 
     def __rmul__(self, v):
