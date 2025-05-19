@@ -71,7 +71,7 @@ class SeismicOriginalDataset(data.Dataset):
         zero_columns = (ps_data.squeeze(0) == 0.0).all(dim=0)
         pp_data[:, :, zero_columns] = 0.0
 
-        return pp_data, -ps_data
+        return pp_data, 1023-ps_data
         
     def __len__(self):
         return len(self.image_list)
@@ -191,7 +191,7 @@ class SeismicDataset(data.Dataset):
         # valid[p80:] = 0.0
         # valid[:95] = 0.0
 
-        return pp_data, -ps_data, flow, valid
+        return pp_data, 1023-ps_data, flow, valid
 
 
     def __rmul__(self, v):
