@@ -191,7 +191,7 @@ class SeismicDataset(data.Dataset):
         # valid[p80:] = 0.0
         # valid[:95] = 0.0
 
-        return pp_data, ps_data, flow, valid
+        return pp_data, 1023-ps_data, flow, valid
 
 
     def __rmul__(self, v):
