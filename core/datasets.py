@@ -94,7 +94,7 @@ class SeismicDataset(data.Dataset):
             valid_root = root / Path(original_pp_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PS_file in list(PS_root.glob('**/*.csv')):
-                PP_file_name = PS_file.name.split('_')[1]
+                PP_file_name = "_".join(PS_file.name.split('_')[1:])
                 PP_file = PP_root/PP_file_name
                 flow_file = list(flow_root.glob(f'**/{PS_file.name}'))[0]
                 valid_file = list(valid_root.glob(f'**/{PS_file.name}'))[0]
@@ -111,7 +111,7 @@ class SeismicDataset(data.Dataset):
             valid_root = root / Path(original_ps_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PP_file in list(PP_root.glob('**/*.csv')):
-                PS_file_name = PP_file.name.split('_')[1]
+                PS_file_name = "_".join(PP_file.name.split('_')[1:])
                 PS_file = PS_root/PS_file_name
                 flow_file = list(flow_root.glob(f'**/{PP_file.name}'))[0]
                 valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
@@ -128,7 +128,7 @@ class SeismicDataset(data.Dataset):
             valid_root = root / Path(original_ss_syn_path).parent / 'gt_txt'    / f'{split}_data'
 
             for PP_file in list(PP_root.glob('**/*.csv')):
-                PS_file_name = PP_file.name.split('_')[1]
+                PS_file_name = "_".join(PP_file.name.split('_')[1:])
                 PS_file = PS_root/PS_file_name
                 flow_file = list(flow_root.glob(f'**/{PP_file.name}'))[0]
                 valid_file = list(valid_root.glob(f'**/{PP_file.name}'))[0]
