@@ -191,6 +191,12 @@ class SeismicDataset(data.Dataset):
         # valid[p80:] = 0.0
         # valid[:95] = 0.0
 
+        if torch.rand(1) < 0.5:
+            pp_data = F.hflip(pp_data)
+            ps_data = F.hflip(ps_data)
+            flow = F.hflip(flow)
+            valid = F.hflip(valid)
+
         return pp_data, ps_data, flow, valid
 
 
