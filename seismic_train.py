@@ -181,6 +181,7 @@ def wandb_train(args):
         model.cuda()
         model.train()
 
+        print("Fetching Dataloader")
         train_loader = datasets.fetch_seismic_dataloader(args, split = 'Train')
         train_loader_len = len(train_loader)
 
