@@ -56,7 +56,7 @@ warnings.filterwarnings(
 # VAL_FREQ = 5000
 
 
-def sequence_loss(flow_preds, flow_gt, valid, gamma=0.8, max_flow=400):
+def sequence_loss(flow_preds, flow_gt, valid, gamma=0.8, max_flow=750):
     """ Loss function defined over sequence of flow predictions """
 
     n_predictions = len(flow_preds)    
@@ -296,7 +296,7 @@ def get_default_args(args = None):
             seed = 1234,
             log_every = 100,
             validation_every = 1000,
-            max_flow = 400,
+            max_flow = 750,
 
             num_workers = 2,
             pin_memory = False,
@@ -357,7 +357,7 @@ def get_args(args = None):
         parser.add_argument('--seed', type=int, default=1234)
         parser.add_argument('--log_every', type=int, default=100)
         parser.add_argument('--validation_every', type=int, default=1000)
-        parser.add_argument('--max_flow', type=int, default=400)
+        parser.add_argument('--max_flow', type=int, default=750)
 
         parser.add_argument('--num_workers', type=int, default=2)
         parser.add_argument('--pin_memory', action='store_true')
